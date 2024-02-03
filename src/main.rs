@@ -54,7 +54,7 @@ fn build_dp_memoized(fr_lines: &Vec<String>, sc_lines: &Vec<String>) -> Vec<Vec<
     dp
 }
 
-fn find_diffs(fr_lines: Vec<String>, sc_lines: Vec<String>) -> Vec<Line> {
+fn find_diffs(fr_lines: &Vec<String>, sc_lines: &Vec<String>) -> Vec<Line> {
     let mut diffs: Vec<Line> = Vec::new();
 
     let n = fr_lines.len();
@@ -73,6 +73,7 @@ fn find_diffs(fr_lines: Vec<String>, sc_lines: Vec<String>) -> Vec<Line> {
                 line_content: sc_lines.get(j - 1).unwrap().clone(),
                 color: 3,
             });
+            j -= 1;
         } else if j == 0 {
             // Deletion
             diffs.push(Line {
@@ -80,6 +81,7 @@ fn find_diffs(fr_lines: Vec<String>, sc_lines: Vec<String>) -> Vec<Line> {
                 line_content: fr_lines.get(i - 1).unwrap().clone(),
                 color: 2,
             });
+            i -= 1;
         } else if fr_lines[i - 1] == sc_lines[j - 1] {
             // Common
             diffs.push(Line {
@@ -124,7 +126,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let fr_lines = get_file_content(&args.fr_path_file)?;
     let sc_lines = get_file_content(&args.sc_path_file)?;
 
-    let diffs = find_diffs(fr_lines, sc_lines);
+    let diffs = find_diffs(&fr_lines, &sc_lines);
 
     for line in diffs {
         match line.color {
