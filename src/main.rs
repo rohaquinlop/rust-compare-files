@@ -91,22 +91,46 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let sc_lines = get_file_content(&args.sc_path_file)?;
 
     let diffs = find_diffs(&fr_lines, &sc_lines);
+    let width = (diffs.len() as f64).log10().ceil() as usize;
 
     for line in diffs {
         match line.color {
-            1 => cprintln!("{} {}", line.line_num, line.line_content),
+            1 => cprintln!(
+                "{line_num:>width$}: {line_content:}",
+                line_num = line.line_num,
+                width = width,
+                line_content = line.line_content,
+            ),
             2 => {
                 if line.line_content.trim().is_empty() {
-                    cprintln!("{} <red>- \\n</>", line.line_num);
+                    cprintln!(
+                        "{line_num:>width$}: <red>- \\n</>",
+                        line_num = line.line_num,
+                        width = width
+                    );
                 } else {
-                    cprintln!("{} <red>- {}</>", line.line_num, line.line_content);
+                    cprintln!(
+                        "{line_num:>width$}: <red>- {line_content:}</>",
+                        line_num = line.line_num,
+                        width = width,
+                        line_content = line.line_content,
+                    );
                 }
             }
             3 => {
                 if line.line_content.trim().is_empty() {
-                    cprintln!("{} <green>+ \\n</>", line.line_num);
+                    cprintln!(
+                        "{line_num:>width$}: <green>+ \\n</>",
+                        line_num = line.line_num,
+                        width = width,
+                    );
                 } else {
-                    cprintln!("{} <green>+ {}</>", line.line_num, line.line_content);
+                    cprintln!(
+                        "{line_num:>width$}: <green>+ {line_content:}</>",
+                        line_num = line.line_num,
+                        width = width,
+                        line_content = line.line_content,
+                    );
                 }
             }
             _ => (),
