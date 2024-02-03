@@ -1,5 +1,5 @@
 [package]
-name = "rust-cli"
+name = "compare-files"
 version = "0.1.0"
 edition = "2021"
 authors = ["Robin Quintero <rohaquinlop301@gmail.com>"]
