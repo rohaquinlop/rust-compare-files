@@ -3,6 +3,7 @@ mod utils;
 use anyhow::Result;
 use clap::Parser;
 use color_print::cprintln;
+use pluralizer::pluralize;
 use utils::{build_dp_memoized, get_file_content};
 
 /// Search for a pattern in a file and display the lines that contain it.
@@ -91,7 +92,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let sc_lines = get_file_content(&args.sc_path_file)?;
 
     let diffs = find_diffs(&fr_lines, &sc_lines);
-    let width = (diffs.len() as f64).log10().ceil() as usize;
+    let width = ((diffs.len() as f64).log10().floor() + 1.0) as usize;
+    let mut total_add: u32 = 0;
+    let mut total_del: u32 = 0;
 
     for line in diffs {
         match line.color {
@@ -102,6 +105,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 line_content = line.line_content,
             ),
             2 => {
+                total_del += 1;
                 if line.line_content.trim().is_empty() {
                     cprintln!(
                         "{line_num:>width$}: <red>- \\n</>",
@@ -118,6 +122,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
             }
             3 => {
+                total_add += 1;
                 if line.line_content.trim().is_empty() {
                     cprintln!(
                         "{line_num:>width$}: <green>+ \\n</>",
@@ -135,6 +140,25 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
             _ => (),
         }
+    }
+
+    if total_add + total_del > 0 {
+        cprintln!("\n<blue>The files you provided are differents!</>");
+        cprintln!("\n<blue>Here is the summary:</>");
+        if total_add > 0 {
+            cprintln!(
+                "<green>+ {} added.</>",
+                pluralize("line", total_add.try_into().unwrap(), true)
+            );
+        }
+        if total_del > 0 {
+            cprintln!(
+                "<red>- {} deleted.</>",
+                pluralize("line", total_del.try_into().unwrap(), true)
+            );
+        }
+    } else {
+        cprintln!("\n<blue>The files you provided contains the same information!</>");
     }
     Ok(())
 }

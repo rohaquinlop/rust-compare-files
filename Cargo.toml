@@ -18,3 +18,4 @@ anyhow = "1.0"
 clap = { version = "4.0", features =  ["derive"] }
 color-print = "0.3.5"
 ctrlc = "3.4.2"
+pluralizer = "0.4.0"
